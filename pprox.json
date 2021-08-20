@@ -31,7 +31,7 @@
     "properties": {
         "pprox": {
             "type": "array",
-            "items": { "$ref": "#/definitions/pproc" }
+            "items": { "$ref": "#pproc" }
         },
         "version": { "type": "integer" }
     },
