@@ -44,11 +44,12 @@ A minimal point process looks like this:
 
 ~~~ json {pproc}
 {
-  "events": [1.1, 1.2304, 1.24]
+  "events": [1.1, 1.2304, 1.24],
+  "proc_off": 1.5
 }
 ~~~
 
-The `events` field is REQUIRED. It MUST be an array of numerical values, in units of seconds. A point process MAY contain two optional fields: `offset` and `marks`. If present, `offset` MUST be a single numerical value that indicates a relative temporal offset, in seconds, for all the events. If present, `marks` MUST be an map containing one or more fields. Each field in `marks` MUST be an array that corresponds one-to-one with the `events` array. Any number of additional fields MAY be used to store metadata. Keys MUST be unique and MUST NOT conflict with any of the required or optional fields described above.
+The `events` field and the `proc_off` field are REQUIRED. The `events` field MUST be an array of numerical values, in units of seconds, and the `proc_off` field MUST be a single numerical value in seconds, indicating the end of the point process. A point process MAY contain three optional fields: `offset`, `marks`, and `proc_on`. If present, `offset` MUST be a single numerical value that indicates a relative temporal offset, in seconds, for all the events. If present, `marks` MUST be an map containing one or more fields. Each field in `marks` MUST be an array that corresponds one-to-one with the `events` array. If present, `proc_on` MUST be a single numerical value indicating the beginning of the point process, which should be assumed to be at zero seconds if this key is absent. Any number of additional fields MAY be used to store metadata. Keys MUST be unique and MUST NOT conflict with any of the required or optional fields described above.
 
 Let's consider some example use cases. First, extracellular spike times recorded in response to a presented stimulus. We code the stimulus identity using a
 [UUID](http://tools.ietf.org/html/rfc4122.html) and indicate the start and stop times of the stimulus with the `stimulus_on` and `stimulus_off` fields. We could also code the stimulus using a more human-readable name, but globally unique identifiers help to avoid confusion down the road. Because this is part of a larger experiment in which many stimuli were presented, we've also stored a relative offset time and an index for the trial.
@@ -60,7 +61,8 @@ Let's consider some example use cases. First, extracellular spike times recorded
   "stimulus": "uuid:d2e8e43b-1243-47d7-b102-f4e2833f09bd",
   "stimulus_on": 1.0,
   "stimulus_off": 4.23,
-  "events": [0.002, 0.3, 1.102, 1.115, 1.271, 4.231]
+  "events": [0.002, 0.3, 1.102, 1.115, 1.271, 4.231],
+  "proc_off": 6.32
 }
 ~~~
 
@@ -69,6 +71,8 @@ We might be recording spikes from an animal engaged in an operant task. To accom
 ~~~ json {pproc}
 {
   "events": [1.1, 1.2304, 1.24],
+  "proc_on": 1.0,
+  "proc_off": 2.4,
   "unit": "uuid:9b7d15cb-6529-4f99-889b-d2bfb5126fbd",
   "trial": "uuid:d2e8e43b-1243-47d7-b102-f4e2833f09bd",
   "stimulus": "uuid:c0c0d6f2-8283-4bd3-b162-2102c7411ee2",
@@ -92,6 +96,7 @@ Let's consider marked point processes. In an intracellular recording, we might w
   "step_on": 0.2,
   "step_off": 2.2,
   "events": [0.212, 0.224, 0.307],
+  "proc_off": 1.0,
   "marks": {
     "spike_height": [10.1, 2.23, -0.29],
     "spike_width": [1.12, 1.79, 2.22]
@@ -108,6 +113,7 @@ Finally, let's look a set of syllable labels for a zebra finch song recording. T
   "labeled_by": "autolabeller_v3.0",
   "labeled_on": "2018-01-28T16:16:48Z",
   "events": [0.502, 0.850, 1.211],
+  "proc_off": 2.0,
   "marks": {
     "duration": [0.32, 0.259, 0.491],
     "label": ["A", "B", "C"]
@@ -122,7 +128,7 @@ Point process data are often part of collections. For example, a single unit may
 ~~~ json {pprox.json}
 {
   "$schema": "https://meliza.org/spec:2/pprox.json#",
-  "pprox": [ { "events": [] } ]
+  "pprox": [ { "events": [], "proc_off": 3.89 } ]
 }
 ~~~
 
@@ -148,7 +154,8 @@ Let's look at how we might collect all the data associated with a single extrace
       "trial": "uuid:a2fdfe1d-a65e-4c12-808e-4de358ad13bb",
       "stimulus_on": 1.0,
       "stimulus_off": 4.23,
-      "events": [0.002, 0.3, 1.102, 1.115, 1.271, 4.231]
+      "events": [0.002, 0.3, 1.102, 1.115, 1.271, 4.231],
+      "proc_off": 5.12
     },
     {
       "offset": 6.23,
@@ -157,7 +164,8 @@ Let's look at how we might collect all the data associated with a single extrace
       "trial": "uuid:5fdb32e8-ff55-44a6-9b03-3a2f59df65eb",
       "stimulus_on": 1.0,
       "stimulus_off": 6.21,
-      "events": [0.122, 0.453, 1.298, 2.892, 5.624]
+      "events": [0.122, 0.453, 1.298, 2.892, 5.624],
+      "proc_off": 7.8
     }
   ]
 }
