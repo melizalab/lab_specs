@@ -1,6 +1,7 @@
 '''Validate json in markdown files against schema'''
 import re
 import json
+from urllib.parse import urljoin
 import jsonschema
 
 def validate_file(schema_file, markdown_file):
@@ -15,7 +16,7 @@ def validate_file(schema_file, markdown_file):
             raise ValueError((f"Could not determine schema for block: {body}")) from exc
         validate(schema, schema_id, load_json(body))
 
-def validate(schema, schema_id, body):
+def validate(base_schema, schema_id, body):
     """
     >>> schema = { '$id': 'example.com/base',
     ... 'type': 'number',
@@ -23,11 +24,13 @@ def validate(schema, schema_id, body):
     ... }
     >>> validate(schema, 'sub', None)
     """
-    resolver = jsonschema.RefResolver.from_schema(schema)
-    with_base_name = lambda ref: resolver._urljoin_cache(resolver.resolution_scope, ref)
-    resolver.store.store.update({with_base_name(k): v for k, v in schema['$defs'].items()})
-    _, schema_by_id = resolver.resolve(schema_id)
-    validator = jsonschema.Draft7Validator(schema_by_id, resolver=resolver)
+    resolver = jsonschema.RefResolver.from_schema(base_schema)
+    with_base_name = lambda ref: urljoin(resolver.resolution_scope, ref)
+    resolver.store.store.update(
+            {with_base_name(k): v for k, v in base_schema['$defs'].items()}
+    )
+    _, schema_from_id = resolver.resolve(schema_id)
+    validator = jsonschema.Draft7Validator(schema_from_id, resolver=resolver)
     validator.validate(body)
 
 def extract_code_blocks(markdown):
