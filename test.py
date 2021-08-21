@@ -8,12 +8,12 @@ def validate_file(schema_file, markdown_file):
         schema = json.load(file_pointer)
     with open(markdown_file) as file_pointer:
         markdown = file_pointer.read()
-    for schema_id, body in extract_code_blocks(markdown):
+    for info_string, body in extract_code_blocks(markdown):
         try:
-            body = json.loads(body)
-        except json.decoder.JSONDecodeError as exc:
-            raise ValueError(f"The following contains invalid JSON: {body}") from exc
-        validate(schema, schema_id, body)
+            schema_id = extract_schema(info_string)
+        except ValueError as exc:
+            raise ValueError((f"Could not determine schema for block: {body}")) from exc
+        validate(schema, schema_id, load_json(body))
 
 def validate(schema, schema_id, body):
     """
@@ -23,9 +23,8 @@ def validate(schema, schema_id, body):
     ... }
     >>> validate(schema, 'sub', None)
     """
-    schema_store = {}
-    resolver = jsonschema.RefResolver.from_schema(schema, store=schema_store)
-    with_base_name = lambda ref: resolver._urljoin_cache(resolver.resolution_scope, ref).rstrip("/")
+    resolver = jsonschema.RefResolver.from_schema(schema)
+    with_base_name = lambda ref: resolver._urljoin_cache(resolver.resolution_scope, ref)
     resolver.store.store.update({with_base_name(k): v for k, v in schema['$defs'].items()})
     _, schema_by_id = resolver.resolve(schema_id)
     validator = jsonschema.Draft7Validator(schema_by_id, resolver=resolver)
@@ -33,32 +32,30 @@ def validate(schema, schema_id, body):
 
 def extract_code_blocks(markdown):
     """
+    Returns a generator that yields (info_string, code_block_body) tuples
+    according to the CommonMark definition
+    (https://spec.commonmark.org/0.29/#fenced-code-blocks)
     >>> md = '''
     ... ~~~ json {pproc}
     ... code
     ... ~~~
     ... text
-    ... ~~~ json {pprox}
+    ... ``` json
     ... more code
-    ... ~~~'''
+    ... ```'''
     >>> list(extract_code_blocks(md))
-    [('pproc', 'code\\n'), ('pprox', 'more code\\n')]
+    [('json {pproc}', 'code\\n'), ('json', 'more code\\n')]
     """
     codeblock_re = re.compile(
             (
                 r"^ {0,3}(?P<fence>```+|~~~+)(?P<info_string>[^~`\n]*)\n"
-                r"(?P<body>(?:.*\n)*?)"
+                r"(?P<body>[\s\S]*?)"
                 r"^ {0,3}(?P=fence)"
             ),
             re.MULTILINE
     )
     for match in codeblock_re.finditer(markdown):
-        try:
-            info_string = extract_schema(match.group('info_string').strip())
-        except ValueError as exc:
-            raise ValueError("Could not determine schema ID in characters "
-                    f"{match.span()}: {match.groups()}.") from exc
-        yield info_string, match.group('body')
+        yield match.group('info_string').strip(), match.group('body')
 
 def extract_schema(info_string):
     """
@@ -67,15 +64,23 @@ def extract_schema(info_string):
     >>> extract_schema("json")
     Traceback (most recent call last):
         ...
-    ValueError: No schema ID specified. Code blocks should include an $id in \
-curly braces. Like so: ~~~ json {pproc}
+    ValueError: Could not parse schema ID from info string 'json'. \
+Code blocks should include an $id in curly braces. Like so: ~~~ json {pproc}
+
     """
     match = re.match(r".*{(?P<id>.*)}", info_string)
     if match is None:
-        raise ValueError("No schema ID specified. Code blocks should"
-                " include an $id in curly braces. Like so:"
+        raise ValueError(f"Could not parse schema ID from info string '{info_string}'."
+                " Code blocks should include an $id in curly braces. Like so:"
                 " ~~~ json {pproc}")
     return match.group('id')
+
+def load_json(text):
+    """Load JSON with more clear error message"""
+    try:
+        return json.loads(text)
+    except json.decoder.JSONDecodeError as exc:
+        raise ValueError(f"The following contains invalid JSON: {text}") from exc
 
 if __name__ == '__main__':
     import doctest
