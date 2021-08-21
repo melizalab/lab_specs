@@ -44,23 +44,35 @@ def extract_code_blocks(markdown):
     >>> list(extract_code_blocks(md))
     [('pproc', 'code\\n'), ('pprox', 'more code\\n')]
     """
-    codeblock_re = re.compile(r"~~~(?P<type>.*)\n(?P<body>(?:.*\n)*?)~~~", re.MULTILINE)
+    codeblock_re = re.compile(
+            (
+                r"^ {0,3}(?P<fence>```+|~~~+)(?P<info_string>[^~`\n]*)\n"
+                r"(?P<body>(?:.*\n)*?)"
+                r"^ {0,3}(?P=fence)"
+            ),
+            re.MULTILINE
+    )
     for match in codeblock_re.finditer(markdown):
-        yield extract_schema(match.group('type')), match.group('body')
+        try:
+            info_string = extract_schema(match.group('info_string').strip())
+        except ValueError as exc:
+            raise ValueError("Could not determine schema ID in characters "
+                    f"{match.span()}: {match.groups()}.") from exc
+        yield info_string, match.group('body')
 
-def extract_schema(block_type):
+def extract_schema(info_string):
     """
-    >>> extract_schema("~~~ json {pproc}")
+    >>> extract_schema("json {pproc}")
     'pproc'
-    >>> extract_schema("~~~ json")
+    >>> extract_schema("json")
     Traceback (most recent call last):
         ...
-    ValueError: No schema id specified. Code blocks should include an $id in \
+    ValueError: No schema ID specified. Code blocks should include an $id in \
 curly braces. Like so: ~~~ json {pproc}
     """
-    match = re.match(r".*{(?P<id>.*)}", block_type)
+    match = re.match(r".*{(?P<id>.*)}", info_string)
     if match is None:
-        raise ValueError("No schema id specified. Code blocks should"
+        raise ValueError("No schema ID specified. Code blocks should"
                 " include an $id in curly braces. Like so:"
                 " ~~~ json {pproc}")
     return match.group('id')
