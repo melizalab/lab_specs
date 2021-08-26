@@ -17,14 +17,10 @@
                         "description": "event time in seconds"
                     }
                 },
-                "proc_on": {
-                    "type": "number",
-                    "description": "start of process in seconds",
-                    "default": 0
-                },
-                "proc_off": {
-                    "type": "number",
-                    "description": "end of process in seconds"
+                "interval": {
+                    "type": "array",
+                    "description": "beginning and end of the point process, in seconds",
+                    "length": 2
                 },
                 "offset": {
                     "type": "number",
@@ -36,7 +32,7 @@
                     "additionalProperties": { "type": "array" }
                 }
             },
-            "required": ["events", "proc_off"]
+            "required": ["events", "interval"]
         }
     },
 
