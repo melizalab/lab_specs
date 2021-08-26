@@ -12,7 +12,15 @@
             "properties": {
                 "events": {
                     "type": "array",
-                    "items": { "type": "number" }
+                    "items": {
+                        "type": "number",
+                        "description": "event time in seconds"
+                    }
+                },
+                "interval": {
+                    "type": "array",
+                    "description": "beginning and end of the point process, in seconds",
+                    "length": 2
                 },
                 "offset": {
                     "type": "number",
@@ -24,7 +32,7 @@
                     "additionalProperties": { "type": "array" }
                 }
             },
-            "required": ["events"]
+            "required": ["events", "interval"]
         }
     },
 
