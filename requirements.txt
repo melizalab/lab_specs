@@ -5,8 +5,24 @@
 #    pip-compile
 #
 attrs==21.2.0
-    # via jsonschema
-git+https://github.com/Julian/jsonschema
+    # via
+    #   jsonschema
+    #   pytest
+iniconfig==1.1.1
+    # via pytest
+git+https://github.com/Julian/jsonschema@836db7c4c7d9cede429a451201c1a4e059479f53
     # via -r requirements.in
+packaging==21.0
+    # via pytest
+pluggy==0.13.1
+    # via pytest
+py==1.10.0
+    # via pytest
+pyparsing==2.4.7
+    # via packaging
 pyrsistent==0.18.0
     # via jsonschema
+pytest==6.2.4
+    # via -r requirements.in
+toml==0.10.2
+    # via pytest

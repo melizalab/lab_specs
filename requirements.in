@@ -1,1 +1,2 @@
-git+https://github.com/Julian/jsonschema
+git+https://github.com/Julian/jsonschema@836db7c4c7d9cede429a451201c1a4e059479f53
+pytest

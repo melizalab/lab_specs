@@ -85,8 +85,5 @@ def load_json(text):
     except json.decoder.JSONDecodeError as exc:
         raise ValueError(f"The following contains invalid JSON: {text}") from exc
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
-
-    validate_file('pprox.json', 'pprox.md')
+def test_pprox():
+    validate_file('specs/pprox.json', 'specs/pprox.md')
