@@ -10,7 +10,7 @@ attrs==21.2.0
     #   pytest
 iniconfig==1.1.1
     # via pytest
-git+https://github.com/Julian/jsonschema@836db7c4c7d9cede429a451201c1a4e059479f53
+jsonschema==4.0.0a6
     # via -r requirements.in
 packaging==21.0
     # via pytest
