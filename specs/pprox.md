@@ -124,7 +124,7 @@ Finally, let's look a set of syllable labels for a zebra finch song recording. T
 
 Point process data are often part of collections. For example, a single unit may be tested with many different stimuli, and each stimulus may be repeated several times. In `pprox`, a collection is simply a map that contains one or more point processes in an array. Here's a minimal collection that contains one trial with no events:
 
-~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json"}
+~~~ json
 {
   "$schema": "https://meliza.org/spec:2/pprox.json#",
   "pprox": [ { "events": [], "interval": [0.0, 10.0] } ]
@@ -135,7 +135,7 @@ The `pprox` field is REQUIRED and MUST be an array of `pproc` objects. The `$sch
 
 Let's look at how we might collect all the data associated with a single extracellular unit. Metadata for the unit are stored at the collection level, including the experimenter, identifiers for the unit, the experimental subject, and for the file that contains the raw data. Other metadata is trial-specific and is stored in each point process.
 
-~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json"}
+~~~ json
 {
   "$schema": "https://meliza.org/spec:2/pprox.json#",
   "unit": "uuid:9b7d15cb-6529-4f99-889b-d2bfb5126fbd",
