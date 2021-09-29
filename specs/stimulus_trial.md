@@ -6,7 +6,7 @@ stimtrial is a format for recording point processes with some associated metadat
 
 # Schema
 
-Stimtrial is a superset of [pprox](https://meliza.org/spec:2/pprox); it requires two addtional keys to the elements of the `pprox` key, `stimulus` and `stimulus_begin`.
+Stimtrial is a superset of [pprox](https://meliza.org/spec:2/pprox); it requires a `stimulus` key to each element of the array stored in the `pprox` key, containing a stimulus identifier and the interval in which stimulus was presented.
 
 
 Here is a minimal example:
@@ -16,8 +16,10 @@ Here is a minimal example:
   "pprox": [ {
     "events": [],
     "interval": [0.0, 10.0],
-    "stimulus": "uuid:40814298-d447-4855-93e3-8aa1e23f06b5",
-    "stimulus_begin": 2.0
+    "stimulus": {
+	    "name": "uuid:40814298-d447-4855-93e3-8aa1e23f06b5",
+	    "interval": [2.0, 2.89]
+    }
    } ]
 }
 ~~~
@@ -37,20 +39,22 @@ Here is an example with example metadata:
     {
       "offset": 0.0,
       "index": 0,
-      "stimulus": "uuid:d2e8e43b-1243-47d7-b102-f4e2833f09bd",
+      "stimulus": {
+        "name": "uuid:d2e8e43b-1243-47d7-b102-f4e2833f09bd",
+        "interval": [1.0, 4.23]
+      },
       "trial": "uuid:a2fdfe1d-a65e-4c12-808e-4de358ad13bb",
-      "stimulus_begin": 1.0,
-      "stimulus_off": 4.23,
       "events": [0.002, 0.3, 1.102, 1.115, 1.271, 4.231],
       "interval": [0, 5.0]
     },
     {
       "offset": 6.23,
       "index": 1,
-      "stimulus": "uuid:40814298-d447-4855-93e3-8aa1e23f06b5",
+      "stimulus": {
+        "name": "uuid:40814298-d447-4855-93e3-8aa1e23f06b5",
+        "interval": [1.0, 6.21]
+      },
       "trial": "uuid:5fdb32e8-ff55-44a6-9b03-3a2f59df65eb",
-      "stimulus_begin": 1.0,
-      "stimulus_off": 6.21,
       "events": [0.122, 0.453, 1.298, 2.892, 5.624],
       "interval": [0, 10.0]
     }

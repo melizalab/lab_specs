@@ -21,15 +21,22 @@
                     "description": "a single stimulus presentation trial",
                     "properties": {
                         "stimulus": {
-                            "type": "string",
-                            "description": "unique identifier for the stimulus presented"
-                        },
-                        "stimulus_begin": {
-                            "type": "number",
-                            "description": "the time at which the stimulus was presented (in seconds since interval[0]) "
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "unique identifier for the presented stimulus"
+                                },
+                                "interval": {
+                                    "type": "array",
+                                    "length": 2,
+                                    "description": "the start and end time of the stimulus, in seconds"
+                                }
+                            },
+                            "required": ["name", "interval"]
                         }
                     },
-                    "required": ["stimulus", "stimulus_begin"]
+                    "required": ["stimulus"]
                 }
             ]
         }
