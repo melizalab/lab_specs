@@ -5,8 +5,8 @@
 
     "$defs": {
         "pproc": {
-            "$id": "/pproc",
             "$schema": "http://json-schema.org/schema#",
+            "$id": "/pproc",
             "description": "a single point process",
             "type": "object",
             "properties": {
@@ -40,7 +40,7 @@
     "properties": {
         "pprox": {
             "type": "array",
-            "items": { "$ref": "/pproc" }
+            "items": { "$ref": "#/$defs/pproc" }
         },
         "version": { "type": "integer" }
     },

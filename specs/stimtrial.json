@@ -1,0 +1,44 @@
+{
+    "$id": "https://meliza.org/spec:2/stimtrial.json#",
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "title": "stimulus presentation trials",
+    "type": "object",
+    "properties": {
+        "pprox": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/stimtrial" }
+        }
+    },
+    "required": ["pprox"],
+    "$defs": {
+        "stimtrial": {
+            "allOf": [
+                {
+                    "$ref": "https://meliza.org/spec:2/pprox.json#/$defs/pproc"
+                },
+                {
+                    "type": "object",
+                    "description": "a single stimulus presentation trial",
+                    "properties": {
+                        "stimulus": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "unique identifier for the presented stimulus"
+                                },
+                                "interval": {
+                                    "type": "array",
+                                    "length": 2,
+                                    "description": "the start and end time of the stimulus, in seconds"
+                                }
+                            },
+                            "required": ["name", "interval"]
+                        }
+                    },
+                    "required": ["stimulus"]
+                }
+            ]
+        }
+    }
+}

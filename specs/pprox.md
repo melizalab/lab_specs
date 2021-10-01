@@ -42,7 +42,7 @@ The schema defines two kinds of objects: **point processes** (`pproc`)and **coll
 
 A minimal point process looks like this:
 
-~~~ json {pproc}
+~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json#/$defs/pproc"}
 {
   "events": [1.1, 1.2304, 1.24],
   "interval": [1.0, 2.0]
@@ -54,7 +54,7 @@ The `events` field and the `interval` field are REQUIRED. The `events` field MUS
 Let's consider some example use cases. First, extracellular spike times recorded in response to a presented stimulus. We code the stimulus identity using a
 [UUID](http://tools.ietf.org/html/rfc4122.html) and indicate the start and stop times of the stimulus with the `stimulus_on` and `stimulus_off` fields. We could also code the stimulus using a more human-readable name, but globally unique identifiers help to avoid confusion down the road. Because this is part of a larger experiment in which many stimuli were presented, we've also stored a relative offset time and an index for the trial.
 
-~~~ json {pproc}
+~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json#/$defs/pproc"}
 {
   "offset": 5.23,
   "index": 1,
@@ -68,7 +68,7 @@ Let's consider some example use cases. First, extracellular spike times recorded
 
 We might be recording spikes from an animal engaged in an operant task. To accommodate the behavioral data, we've added an array for times when the animal pecked and information about the consequences of its choice. For illustration, we've also added some additional data from a temperature sensor, which is stored as a map with a field for units. We've also added identifiers for the trial and the recording unit, which would allow us to cross-reference this trial with data from the same unit and trial. For example, instead of storing the concurrent peck events in this point process, as we've done here, we could store them in a separate object with the same trial id.
 
-~~~ json {pproc}
+~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json#/$defs/pproc"}
 {
   "events": [1.1, 1.2304, 1.24],
   "interval": [1.0, 2.4],
@@ -87,7 +87,7 @@ We might be recording spikes from an animal engaged in an operant task. To accom
 
 Let's consider marked point processes. In an intracellular recording, we might want to include some measurements of the spike waveforms, as these can change in bursts. These measurements are stored as arrays in the `marks` field. Note that the arrays have the same number of elements as `events`. It's presumed that `spike_height[0]` corresponds to `events[0]` and so forth. Here we've also chosen to describe the stimulus using a few parameters rather than making a reference to some external entity.
 
-~~~ json {pproc}
+~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json#/$defs/pproc"}
 {
   "index": 2,
   "protocol": "step",
@@ -105,7 +105,7 @@ Let's consider marked point processes. In an intracellular recording, we might w
 
 Finally, let's look a set of syllable labels for a zebra finch song recording. The `event` field stores the start times of the syllables, and the marks indicate the duration of the syllables and the assigned label. The metadata fields store information about the (imaginary) program used to generate the labels, the recording file the labels reference, and the bird that produced the song. This example also illustrates using URLs as identifiers, which serves two purposes. The domain acts as a namespace so that the shorter ids are still globally unique, and the URL provides end-users with a link to obtain more information. URL identifiers are especially useful in a public API.
 
-~~~ json {pproc}
+~~~ json {"$schema": "https://meliza.org/spec:2/pprox.json#/$defs/pproc"}
 {
   "vocalizer": "https://melizalab.org/birds/38bb8d1f/",
   "recording": "https://melizalab.org/songs/d9c73127/",
@@ -124,7 +124,7 @@ Finally, let's look a set of syllable labels for a zebra finch song recording. T
 
 Point process data are often part of collections. For example, a single unit may be tested with many different stimuli, and each stimulus may be repeated several times. In `pprox`, a collection is simply a map that contains one or more point processes in an array. Here's a minimal collection that contains one trial with no events:
 
-~~~ json {pprox.json}
+~~~ json
 {
   "$schema": "https://meliza.org/spec:2/pprox.json#",
   "pprox": [ { "events": [], "interval": [0.0, 10.0] } ]
@@ -135,7 +135,7 @@ The `pprox` field is REQUIRED and MUST be an array of `pproc` objects. The `$sch
 
 Let's look at how we might collect all the data associated with a single extracellular unit. Metadata for the unit are stored at the collection level, including the experimenter, identifiers for the unit, the experimental subject, and for the file that contains the raw data. Other metadata is trial-specific and is stored in each point process.
 
-~~~ json {pprox.json}
+~~~ json
 {
   "$schema": "https://meliza.org/spec:2/pprox.json#",
   "unit": "uuid:9b7d15cb-6529-4f99-889b-d2bfb5126fbd",
