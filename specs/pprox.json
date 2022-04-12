@@ -19,12 +19,12 @@
                 },
                 "interval": {
                     "type": "array",
-                    "description": "beginning and end of the point process, in seconds",
+                    "description": "beginning and end of the point process, in seconds, relative to `offset`, if present",
                     "length": 2
                 },
                 "offset": {
                     "type": "number",
-                    "description": "offset, in seconds, added to event times"
+                    "description": "offset, in seconds, added to all times for this point process"
                 },
                 "marks": {
                     "description": "map of arrays that mark the events",

@@ -30,7 +30,7 @@
                                 "interval": {
                                     "type": "array",
                                     "length": 2,
-                                    "description": "the start and end time of the stimulus, in seconds"
+                                    "description": "the start and end time of the stimulus, in seconds, relative to `offset`, if present"
                                 }
                             },
                             "required": ["name", "interval"]

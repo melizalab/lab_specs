@@ -51,6 +51,8 @@ A minimal point process looks like this:
 
 The `events` field and the `interval` field are REQUIRED. The `events` field MUST be an array of numerical values, in units of seconds. The `interval` field MUST be an array with exactly two elements, where the first element is the time at which the point process began and the second element is the time at which the point process ended, both in seconds. A point process MAY contain two optional fields: `offset` and `marks`. If present, `offset` MUST be a single numerical value that indicates a relative temporal offset, in seconds, for all the events. If present, `marks` MUST be an map containing one or more fields. Each field in `marks` MUST be an array that corresponds one-to-one with the `events` array. Any number of additional fields MAY be used to store metadata. Keys MUST be unique and MUST NOT conflict with any of the required or optional fields described above.
 
+Note that if the `offset` key is present, every time in that trial will be relative to this offset. Therefore, every single event in the `events` key should be in the closed interval defined by the `interval` key, whether or not `offset` is present.
+
 Let's consider some example use cases. First, extracellular spike times recorded in response to a presented stimulus. We code the stimulus identity using a
 [UUID](http://tools.ietf.org/html/rfc4122.html) and indicate the start and stop times of the stimulus with the `stimulus_on` and `stimulus_off` fields. We could also code the stimulus using a more human-readable name, but globally unique identifiers help to avoid confusion down the road. Because this is part of a larger experiment in which many stimuli were presented, we've also stored a relative offset time and an index for the trial.
 
