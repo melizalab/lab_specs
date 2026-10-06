@@ -3,10 +3,10 @@ import pytest
 
 from validation.jsoncodeblock import JsonCodeblock
 
-def pytest_collect_file(parent, path):
+def pytest_collect_file(file_path, parent):
     # collect all markdown files
-    if path.ext == '.md':
-        return MarkdownFile.from_parent(parent, fspath=path)
+    if file_path.suffix == '.md':
+        return MarkdownFile.from_parent(parent, path=file_path)
 
 class FencedCodeblock():
     # classes that extend pytest.Node
@@ -47,7 +47,7 @@ class MarkdownFile(pytest.File):
     '''
 
     def collect(self):
-        with open(self.fspath) as file_pointer:
+        with open(self.path) as file_pointer:
             markdown = file_pointer.read()
         for line_num, info_string, body in MarkdownFile.extract_code_blocks(markdown):
             name = f"{self.name}:{line_num}"
