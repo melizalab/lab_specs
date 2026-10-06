@@ -11,7 +11,7 @@ redirect_from:
 -   Schema: <https://meliza.org/spec:2/pprox.json>
 -   Editor: Dan Meliza (dan at meliza.org)
 -   Version: 1.0
--   Status:  raw
+-   Status:  stable
 -   MIME types: `application/vnd.meliza-org.pprox+json; version=1.0`, `application/vnd.meliza-org.pprox+edn; version=1.0`
 
 ## 1 Goals
@@ -168,6 +168,8 @@ Let's look at how we might collect all the data associated with a single extrace
 ### 3.1 Extending the schema
 
 As the examples above illustrate, metadata are important for users to be able to interpret the structure of an experiment. Deciding what metadata to include and how to organize it involves problems akin to those of experimental design, and as such, not trivial. No general-purpose schema or open data standard can make these decisions for you. `pprox` is intended to be general and extensible. You should extend it for specific use cases in your lab, by defining required fields and specifying how they should be interpreted. Do this before you collect data, request comments, and register the spec somewhere. You're doing this already for bench protocols and experimental designs, right?  Revise specs as needed, but under version control, so that if someone wants to use your data, you can point them to the correct version.
+
+For example, the Meliza Lab primarily uses pprox to store data from extracellular auditory electrophysiology studies in which an acoustic stimulus is presented in each trial. The [stimtrial](https://meliza.org/spec:2/stimtrial) extension supports this use case by requiring an `interval` field that defines the duration of each trial and a `stimulus` field that contains information about the stimulus identity and when it was presented in the trial.
 
 ### 3.2 Storage and transmission
 
