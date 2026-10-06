@@ -39,10 +39,11 @@ registry = build_registry()
 
 
 class JsonCodeblock(pytest.Item):
-    def __init__(self, *, body, extra_info, **kwargs):
+    def __init__(self, *, body, extra_info, default_schema=None, **kwargs):
         super().__init__(**kwargs)
         self.body = body
         self.extra_info = extra_info
+        self.default_schema = default_schema
 
     def runtest(self):
         body = json.loads(self.body)
@@ -51,6 +52,8 @@ class JsonCodeblock(pytest.Item):
         except json.decoder.JSONDecodeError as exc:
             raise errors.InvalidInfoStringError(self.extra_info) from exc
         body.update(extra_keys)
+        if "$schema" not in body and self.default_schema is not None:
+            body["$schema"] = self.default_schema
         validate(body)
 
 

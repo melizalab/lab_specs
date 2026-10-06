@@ -19,7 +19,9 @@ class NoSchemaSpecifiedError(JsonCodeblockError):
             ' object after "json" in the info string (which will be'
             ' merged with the object in the body), like so:\n'
             '``` json {"$schema": "https://example.com/schema"}\n'
-            '{}\n```'
+            '{}\n```\n'
+            'or for all the codeblocks in a document that don\'t specify one,'
+            ' with an "example_schema" key in its YAML front matter.'
         )
 
 

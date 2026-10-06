@@ -10,6 +10,7 @@ dependencies = []
 dev = [
     "jsonschema>=4.18",
     "pytest>=8",
+    "pyyaml",
     "referencing",
 ]
 

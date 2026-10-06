@@ -1,5 +1,6 @@
 import re
 import pytest
+import yaml
 
 from validation.jsoncodeblock import JsonCodeblock
 
@@ -14,7 +15,7 @@ class FencedCodeblock():
             "json": JsonCodeblock,
     }
 
-    def __init__(self, name, info_string, body):
+    def __init__(self, name, info_string, body, default_schema=None):
         """
         >>> codeblock = FencedCodeblock("test.md:3", 'json {"a": 1}', "{}")
         >>> codeblock.codeblock_class
@@ -24,6 +25,7 @@ class FencedCodeblock():
         """
         self.name = name
         self.body = body
+        self.default_schema = default_schema
         split = info_string.split(None, maxsplit=1)
         # pad, so that we default to empty strings
         split += [''] * (2 - len(split))
@@ -36,7 +38,8 @@ class FencedCodeblock():
                     parent,
                     name=self.name,
                     body=self.body,
-                    extra_info=self.extra_info
+                    extra_info=self.extra_info,
+                    default_schema=self.default_schema,
             )
         raise UnsupportedCodeblockType()
 
@@ -49,15 +52,30 @@ class MarkdownFile(pytest.File):
     def collect(self):
         with open(self.path) as file_pointer:
             markdown = file_pointer.read()
+        default_schema = MarkdownFile.front_matter(markdown).get("example_schema")
         for line_num, info_string, body in MarkdownFile.extract_code_blocks(markdown):
             name = f"{self.name}:{line_num}"
             try:
-                codeblock_item = FencedCodeblock(name, info_string, body)
+                codeblock_item = FencedCodeblock(name, info_string, body, default_schema)
                 yield codeblock_item.create(self)
             except UnsupportedCodeblockType:
                 # silently ignore unsupported codeblocks
                 # (i.e. no type, or python)
                 pass
+
+    @staticmethod
+    def front_matter(markdown):
+        """
+        Returns the YAML front matter of a markdown document as a dict. The
+        `example_schema` key names the schema for json code blocks that don't
+        specify one.
+        >>> MarkdownFile.front_matter("---\\ntitle: x\\nexample_schema: s\\n---\\ntext")
+        {'title': 'x', 'example_schema': 's'}
+        >>> MarkdownFile.front_matter("no front matter")
+        {}
+        """
+        match = re.match(r"---\n(.*?)\n---\n", markdown, re.DOTALL)
+        return yaml.safe_load(match.group(1)) or {} if match else {}
 
     @staticmethod
     def extract_code_blocks(markdown):

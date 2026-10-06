@@ -11,7 +11,7 @@ stimtrial is a format for recording point processes with some associated metadat
 -   Version: 1.0
 -   Status: draft
 
-# Schema
+## Schema
 
 Stimtrial is a superset of [pprox](https://meliza.org/spec:2/pprox). Each element of the array stored in the `pprox` key MUST have:
 
@@ -20,6 +20,7 @@ Stimtrial is a superset of [pprox](https://meliza.org/spec:2/pprox). Each elemen
 
 
 Here is a minimal example:
+
 ~~~ json
 {
   "$schema": "https://meliza.org/spec:2/stimtrial.json#",
@@ -35,7 +36,8 @@ Here is a minimal example:
 ~~~
 
 Here is an example with example metadata:
-``` json
+
+~~~ json
 {
   "$schema": "https://meliza.org/spec:2/stimtrial.json#",
   "unit": "uuid:9b7d15cb-6529-4f99-889b-d2bfb5126fbd",
@@ -71,11 +73,11 @@ Here is an example with example metadata:
   ]
 }
 
-```
+~~~
 
-# Auxiliary signals
+### Auxiliary signals
 
-A trial MAY contain an `aux` field recording pulses on other signals recorded alongside the stimulus, such as the output of an optogenetic light source or the TTL output of a sensor. If present, `aux` MUST be an array with one object for each pulse that starts in the trial. Each object MUST have a `name` field identifying the signal, and an `interval` field with the start and end time of the pulse, in seconds, relative to `offset`, if present, like the stimulus interval. A pulse that continues past the end of the trial is not clipped. Each object MAY have additional fields describing the pulse. When `aux` is used, a trial without any pulses SHOULD have an empty array, so that "no pulses" can be distinguished from "not recorded".
+A trial MAY contain an `aux` field recording pulses on other signals recorded alongside the stimulus, such as an output sent to an optogenetic light source or the TTL output of a sensor. If present, `aux` MUST be an array with one object for each pulse that starts in the trial. Each object MUST have a `name` field identifying the signal, and an `interval` field with the start and end time of the pulse, in seconds, relative to `offset`, if present, like the stimulus interval. A pulse that continues past the end of the trial is not clipped. Each object MAY have additional fields describing the pulse. When `aux` is used, a trial without any pulses SHOULD have an empty array, so that "no pulses" can be distinguished from "not recorded".
 
 A collection that uses `aux` SHOULD include an `aux_tracks` field, a map from the name of each signal to an object describing its source (e.g. the recording channel), so this information is not repeated in every trial.
 
