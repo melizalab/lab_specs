@@ -1,0 +1,22 @@
+name: validate
+
+# Checks the JSON schemas in specs/ and validates the JSON examples in the
+# markdown documents against them.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Validate schemas and examples
+        run: uv run --locked pytest

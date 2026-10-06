@@ -2,8 +2,14 @@
 
 ## Validating jsonschema
 
-JSON schema in markdown code blocks can be automatically validated:
+The JSON schemas in `specs/` and the JSON examples in the markdown documents
+(fenced code blocks marked `json`) are validated with pytest. With
+[uv](https://docs.astral.sh/uv/):
+
 ```
-pip install -r requirements.txt
-python -m pytest
+uv run pytest
 ```
+
+uv installs the dependencies listed in `pyproject.toml`, at the versions
+recorded in `uv.lock`, into a local `.venv`. To update them, run
+`uv lock --upgrade`.
