@@ -1,0 +1,71 @@
+{
+    "$id": "https://meliza.org/spec:4/abfzip.json#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "abfzip metadata.json",
+    "description": "the metadata.json member of an abfzip archive, version 1.x",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "const": "https://meliza.org/spec:4/abfzip.json#",
+            "description": "the schema the object follows (one URI for each major version)"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^1\\.(0|[1-9][0-9]*)$",
+            "description": "the version of the specification the file follows, as MAJOR.MINOR"
+        },
+        "metadata": {
+            "type": "object",
+            "description": "the registry metadata of the recording as a whole",
+            "properties": {
+                "experimenter": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "the person who made the recording, as a username in the registry"
+                },
+                "animal": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "the animal the recording came from, as its identifier in the registry's animal database"
+                }
+            },
+            "additionalProperties": { "$ref": "#/$defs/value" }
+        },
+        "catalog": {
+            "type": "array",
+            "description": "records describing individual members of the archive",
+            "items": { "$ref": "#/$defs/record" }
+        }
+    },
+    "required": ["$schema", "version", "metadata", "catalog"],
+    "$defs": {
+        "value": {
+            "not": { "type": "null" },
+            "description": "a known value; a key with no known value is left out"
+        },
+        "record": {
+            "type": "object",
+            "description": "metadata for one member of the archive",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "not": { "const": "metadata.json" },
+                    "description": "the member's path in the archive, exactly as stored"
+                },
+                "protocol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "the acquisition protocol the file was recorded with"
+                },
+                "start": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "when recording of the file started, as an ISO 8601 date and time (local time if it has no offset)"
+                }
+            },
+            "required": ["path"],
+            "additionalProperties": { "$ref": "#/$defs/value" }
+        }
+    }
+}

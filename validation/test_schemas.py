@@ -4,7 +4,7 @@
 import copy
 
 import pytest
-from jsonschema import ValidationError
+from jsonschema import Draft202012Validator, ValidationError
 from jsonschema.validators import validator_for
 
 from validation.jsoncodeblock import get_all_json, registry, spec_folder, validate
@@ -86,3 +86,70 @@ def test_stimtrial_requires_interval():
     """stimtrial requires each trial to have an interval."""
     with pytest.raises(ValidationError, match="'interval' is a required property"):
         validate(broken(lambda d: d["pprox"][0].pop("interval")))
+
+
+
+
+ABFZIP = "https://meliza.org/spec:4/abfzip.json#"
+METADATA = {
+    "$schema": ABFZIP,
+    "version": "1.0",
+    "metadata": {
+        "experimenter": "anc4kj",
+        "animal": "ca7cb913-0888-4861-8b3b-a954b16f42ce",
+        "cell": 5,
+    },
+    "catalog": [
+        {"path": "2016_05_26_0000.abf", "protocol": "IV_steps_500ms", "start": "2016-05-26T14:02:11"},
+        {"path": "notes.txt"},
+    ],
+}
+
+
+def validate_abfzip(doc):
+    """Validates doc against the abfzip schema, whatever its $schema says."""
+    Draft202012Validator({"$ref": ABFZIP}, registry=registry).validate(doc)
+
+
+def changed(change):
+    doc = copy.deepcopy(METADATA)
+    change(doc)
+    return doc
+
+
+def test_valid_abfzip_metadata():
+    validate(METADATA)
+    validate_abfzip({"$schema": ABFZIP, "version": "1.0", "metadata": {}, "catalog": []})
+
+
+def test_abfzip_accepts_newer_minor_versions_and_keys():
+    """a 1.x reader can validate a file from a later minor version"""
+    validate_abfzip(changed(lambda d: d.update(version="1.12", added_in_1_12={})))
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        pytest.param(lambda d: d.pop("$schema"), id="no-schema"),
+        pytest.param(lambda d: d.update({"$schema": "https://meliza.org/spec:4/abfzip-2.json#"}), id="other-schema"),
+        pytest.param(lambda d: d.pop("version"), id="no-version"),
+        pytest.param(lambda d: d.update(version="2.0"), id="version-2"),
+        pytest.param(lambda d: d.update(version="1"), id="version-no-minor"),
+        pytest.param(lambda d: d.update(version=1.0), id="version-number"),
+        pytest.param(lambda d: d.pop("metadata"), id="no-metadata"),
+        pytest.param(lambda d: d.update(metadata=[]), id="metadata-not-object"),
+        pytest.param(lambda d: d["metadata"].update(experimenter=5), id="experimenter-not-string"),
+        pytest.param(lambda d: d["metadata"].update(experimenter=""), id="experimenter-empty"),
+        pytest.param(lambda d: d["metadata"].update(animal=None), id="animal-null"),
+        pytest.param(lambda d: d["metadata"].update(cell=None), id="metadata-value-null"),
+        pytest.param(lambda d: d.pop("catalog"), id="no-catalog"),
+        pytest.param(lambda d: d.update(catalog={}), id="catalog-not-array"),
+        pytest.param(lambda d: d["catalog"][0].pop("path"), id="record-no-path"),
+        pytest.param(lambda d: d["catalog"][0].update(path="metadata.json"), id="record-metadata-json"),
+        pytest.param(lambda d: d["catalog"][0].update(protocol=None), id="record-value-null"),
+        pytest.param(lambda d: d["catalog"][0].update(start=20160526), id="record-start-not-string"),
+    ],
+)
+def test_malformed_abfzip_metadata_rejected(change):
+    with pytest.raises(ValidationError):
+        validate_abfzip(changed(change))
