@@ -44,16 +44,3 @@ class InvalidSchemaError(JsonCodeblockError):
         return (
             f"Failed to decode the JSON file {self.fname}"
         )
-
-
-class MissingSchemaIdError(JsonCodeblockError):
-    def __init__(self, fname):
-        self.fname = fname
-
-    def __str__(self):
-        return (
-            f"Could not find the $id key in {self.fname},"
-            " which is needed to prepopulate the jsonschema"
-            " reference resolution cache so that references"
-            " are resolved to local versions"
-        )

@@ -7,7 +7,8 @@ import pytest
 from jsonschema import Draft202012Validator, ValidationError
 from jsonschema.validators import validator_for
 
-from validation.jsoncodeblock import get_all_json, registry, spec_folder, validate
+from melizalab_specs import registry
+from validation.jsoncodeblock import get_all_json, spec_folder, validate
 
 PPROC = "https://meliza.org/spec:2/pprox.json#pproc"
 STIMTRIAL = "https://meliza.org/spec:2/stimtrial.json#"
@@ -17,7 +18,9 @@ STIMTRIAL = "https://meliza.org/spec:2/stimtrial.json#"
     "fname,schema", list(get_all_json(spec_folder)), ids=lambda x: str(x)[-20:]
 )
 def test_schema_is_valid_for_its_dialect(fname, schema):
-    """Each schema names a dialect the validator knows, and is valid under it."""
+    """Each schema has an $id, names a dialect the validator knows, and is valid
+    under it."""
+    assert "$id" in schema, f"{fname}: no $id, which is how the schema is found"
     cls = validator_for(schema, default=None)
     assert cls is not None, f"{fname}: unrecognized $schema {schema.get('$schema')}"
     cls.check_schema(schema)
@@ -25,7 +28,7 @@ def test_schema_is_valid_for_its_dialect(fname, schema):
 
 def test_pproc_anchor_and_pointer_agree():
     """The point process can be referred to by its anchor or by JSON pointer."""
-    resolver = registry.resolver()
+    resolver = registry().resolver()
     anchor = resolver.lookup(PPROC).contents
     pointer = resolver.lookup("https://meliza.org/spec:2/pprox.json#/$defs/pproc").contents
     assert anchor is pointer
@@ -108,7 +111,7 @@ METADATA = {
 
 def validate_abfzip(doc):
     """Validates doc against the abfzip schema, whatever its $schema says."""
-    Draft202012Validator({"$ref": ABFZIP}, registry=registry).validate(doc)
+    Draft202012Validator({"$ref": ABFZIP}, registry=registry()).validate(doc)
 
 
 def changed(change):
