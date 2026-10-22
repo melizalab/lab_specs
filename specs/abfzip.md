@@ -179,6 +179,7 @@ Here is an example with the usual metadata and a representative catalog:
 the version of this specification the file follows. Following the change
 process below:
 
+-   Minor and major changes are defined below under Change Process.
 -   Readers MUST refuse a file with a major version they don't know.
 -   Readers MAY read a file with a newer minor version than they know, ignoring
     keys they don't know.
@@ -206,11 +207,11 @@ this program; if not, see <http://www.gnu.org/licenses>.
 
 This Specification is a free and open Consensus-Oriented Specification System ([COSS](https://rfc.unprotocols.org/spec:2/COSS/)).
 
-Version numbering is [semantic](http://semver.org). Changes that
-maintain backwards compatibility (i.e., that do not change or remove any
-required fields and attributes) result in increments to the minor version.
-Changes that break backwards compatibility must receive new major version
-numbers. Changes that significantly alter the goals of the specification must
+Version numbering is [semantic](http://semver.org). A change that only adds
+optional keys results in an increment to the minor version. Adding a required
+key, making an optional key required, removing a key, or changing a key's type
+or meaning breaks backwards compatibility and must receive a new major version
+number. Changes that significantly alter the goals of the specification must
 result in a new identifier, preferably with a reference to the version of this
 document at the time of the fork.
 

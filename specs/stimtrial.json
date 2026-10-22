@@ -8,6 +8,11 @@
             "type": "array",
             "items": { "$ref": "#/$defs/stimtrial" }
         },
+        "version": {
+            "type": "string",
+            "pattern": "^1\\.(0|[1-9][0-9]*)$",
+            "description": "the version of this specification the document follows, as MAJOR.MINOR; a document without it follows 1.0"
+        },
         "aux_tracks": {
             "type": "object",
             "description": "the auxiliary signals in `aux`, by name. Each value describes the source of the signal (e.g. the recording channel)",

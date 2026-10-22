@@ -73,6 +73,9 @@ def test_valid_collection():
         ),
         pytest.param(lambda d: d["pprox"][0].__setitem__("aux", {"led": [0, 1]}), id="aux-not-array"),
         pytest.param(lambda d: d.__setitem__("aux_tracks", {"led": "ADC4"}), id="aux-tracks-not-object"),
+        pytest.param(lambda d: d.__setitem__("version", 1), id="version-not-string"),
+        pytest.param(lambda d: d.__setitem__("version", "2.0"), id="version-unknown-major"),
+        pytest.param(lambda d: d.__setitem__("version", "1"), id="version-no-minor"),
     ],
 )
 def test_malformed_collections_rejected(change):
@@ -170,3 +173,18 @@ def test_abfzip_accepts_newer_minor_versions_and_keys():
 def test_malformed_abfzip_metadata_rejected(change):
     with pytest.raises(ValidationError):
         validate_abfzip(changed(change))
+
+
+@pytest.mark.parametrize("schema", ["https://meliza.org/spec:2/pprox.json#", STIMTRIAL])
+@pytest.mark.parametrize("version", [None, "1.0", "1.1", "1.12"])
+def test_version_is_optional(schema, version):
+    doc = {**COLLECTION, "$schema": schema}
+    if version is not None:
+        doc["version"] = version
+    validate(doc)
+
+
+def test_pprox_version_checked():
+    doc = {"$schema": "https://meliza.org/spec:2/pprox.json#", "version": 1, "pprox": []}
+    with pytest.raises(ValidationError):
+        validate(doc)

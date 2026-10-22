@@ -12,9 +12,9 @@ example_schema: https://meliza.org/spec:2/pprox.json#pproc
 -   Name: <https://meliza.org/spec:2/pprox> (2/pprox)
 -   Schema: <https://meliza.org/spec:2/pprox.json>
 -   Editor: Dan Meliza (dan at meliza.org)
--   Version: 1.0
+-   Version: 1.1
 -   Status:  stable
--   MIME types: `application/vnd.meliza-org.pprox+json; version=1.0`, `application/vnd.meliza-org.pprox+edn; version=1.0`
+-   MIME types: `application/vnd.meliza-org.pprox+json; version=1.1`, `application/vnd.meliza-org.pprox+edn; version=1.1`
 -   Extended by: [stimtrial](https://meliza.org/spec:2/stimtrial)
 
 ## 1 Goals
@@ -39,7 +39,7 @@ The use cases for `pprox` include:
 
 `pprox` can be implemented in any data structure that supports nested key-value pairs and arrays. The snippets below are in Javascript Object Notation ([json](https://json.org)), because this is expected to be the predominant form of serialization, but can easily be translated to your favorite structure or notation, such as Python dictionaries, Ruby hashes, [edn](https://github.com/edn-format/edn), or even XML, if you're a masochist. The text uses *map* or *object* to indicate a collection of key-value pairs, *field* to indicate a single key-value pair, and *array* to indicate an ordered, homogeneous sequence.
 
-The schema defines two kinds of objects: **point processes** (`pproc`)and **collections** (`pprox`). A point process is a map that contains an array of event times. A collection is an aggregate of point processes.
+The schema defines two kinds of objects: **point processes** (`pproc`) and **collections** (`pprox`). A point process is a map that contains an array of event times. A collection is a map that holds an array of point processes, with metadata about them.
 
 ### 2.1 Point processes
 
@@ -129,13 +129,14 @@ Point process data are often part of collections. For example, a single unit may
 }
 ~~~
 
-The `pprox` field is REQUIRED and MUST be an array of `pproc` objects. The `$schema` field SHOULD be used. The value of this field MUST be a [URI](http://tools.ietf.org/html/rfc3986) and SHOULD refer to the most restrictive specification for the contents of the document. That is, if you've extended this schema for a specific application, you should reference the extended schema. Any number of additional fields MAY be included as metadata.
+The `pprox` field is REQUIRED and MUST be an array of `pproc` objects. The `$schema` field SHOULD be used. The value of this field MUST be a [URI](http://tools.ietf.org/html/rfc3986) and SHOULD refer to the most restrictive specification for the contents of the document. That is, if you've extended this schema for a specific application, you should reference the extended schema. The `version` field is OPTIONAL. If present, it MUST be a string giving the version of the specification named in `$schema` that the document follows, as `MAJOR.MINOR` (see 3.3); a document without it follows version 1.0. Any number of additional fields MAY be included as metadata.
 
 Let's look at how we might collect all the data associated with a single extracellular unit. Metadata for the unit are stored at the collection level, including the experimenter, identifiers for the unit, the experimental subject, and for the file that contains the raw data. Other metadata is trial-specific and is stored in each point process.
 
 ~~~ json
 {
   "$schema": "https://meliza.org/spec:2/pprox.json#",
+  "version": "1.1",
   "unit": "uuid:9b7d15cb-6529-4f99-889b-d2bfb5126fbd",
   "subject": "uuid:629d1161-9e52-443f-84be-14024405c2c2",
   "source_recording": "uuid:e124679f-0dc0-433a-8b25-a4d8f19d122a",
@@ -174,15 +175,28 @@ As the examples above illustrate, metadata are important for users to be able to
 
 For example, the Meliza Lab primarily uses pprox to store data from extracellular auditory electrophysiology studies in which an acoustic stimulus is presented in each trial. The [stimtrial](https://meliza.org/spec:2/stimtrial) extension supports this use case by requiring an `interval` field that defines the duration of each trial and a `stimulus` field that contains information about the stimulus identity and when it was presented in the trial.
 
+Extending pprox for a specific use case, as stimtrial does, is generally preferred over changing this specification. The base specification should stay minimal, so that it remains stable across the use cases that build on it.
+
 ### 3.2 Storage and transmission
 
 The `pprox` schema can be serialized in any format that supports nested maps and arrays. Compatible formats include JSON, BSON, YAML, and edn.
 
-Files that contain serialized `pprox` data SHOULD use an extension that indicates the serialization format. Code SHOULD check the `$schema` field to determine which version of the spec to use in parsing the data. When transmitting `pprox` data over a network using HTTP, servers SHOULD use the MIME media type `application/vnd.meliza-org.pprox+json; version=1.0`, replacing `json` with the serialization format being used. Clients requesting `pprox` data SHOULD use this MIME type in the Accepts header to inform servers of the preferred format.
+Files that contain serialized `pprox` data SHOULD use an extension that indicates the serialization format. Code SHOULD check the `$schema` and `version` fields to determine which version of the spec to use in parsing the data. When transmitting `pprox` data over a network using HTTP, servers SHOULD use the MIME media type `application/vnd.meliza-org.pprox+json; version=1.1`, replacing `json` with the serialization format being used. Clients requesting `pprox` data SHOULD use this MIME type in the Accepts header to inform servers of the preferred format.
 
 In most cases, data should be serialized as a `pprox` collection rather than as individual `pproc` objects.  Collection contents should reflect the structure of the experiment and minimize the amount of duplicated metadata.
 
 However, in applications where data need to be streamed (e.g., live visualization of ongoing acquisition), serialization protocols that have enclosing delimiters (like JSON) cannot be used. One solution is to use a format like YAML or [ZPL](https://rfc.zeromq.org/spec:4/ZPL). Another solution is to send top-level metadata separately and then stream individual `pproc` objects.
+
+### 3.3 Versions
+
+`version` and the `version` parameter of the MIME type give the version of the specification the document follows. Following the change process below:
+
+-   Minor and major changes are defined below under Change Process.
+-   Readers MUST refuse a document with a major version they don't know.
+-   Readers MAY read a document with a newer minor version than they know, ignoring fields they don't know.
+-   A new major version gets a new schema URI for `$schema`; minor versions share the URI of their major version.
+
+Version 1.1 added the `version` field. Version 1.0 documents are valid 1.1 documents.
 
 ## Licence
 
@@ -205,13 +219,13 @@ this program; if not, see <http://www.gnu.org/licenses>.
 
 This Specification is a free and open Consensus-Oriented Specification System ([COSS](https://rfc.unprotocols.org/spec:2/COSS/)).
 
-Version numbering is [semantic](http://semver.org). Changes that
-maintain backwards compatibility (i.e., that do not change or remove any
-required fields and attributes) result in increments to the minor version.
-Changes that break backwards compatibility must receive new major version
-numbers. Changes that significantly alter the goals of the specification must
-result in a new identifier, preferably with a reference to the version of this
-document at the time of the fork.
+Version numbering is [semantic](http://semver.org). A change that only adds
+optional fields results in an increment to the minor version. Adding a required
+field, making an optional field required, removing a field, or changing a
+field's type or meaning breaks backwards compatibility and must receive a new
+major version number. Changes that significantly alter the goals of the
+specification must result in a new identifier, preferably with a reference to
+the version of this document at the time of the fork.
 
 ## Language
 

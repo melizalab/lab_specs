@@ -6,9 +6,9 @@ stimtrial is a format for recording point processes with some associated metadat
 
 -   Name: <https://meliza.org/spec:2/stimtrial>
 -   Schema: <https://meliza.org/spec:2/stimtrial.json>
--   Extends: [pprox](https://meliza.org/spec:2/pprox) 1.0
+-   Extends: [pprox](https://meliza.org/spec:2/pprox) 1.1
 -   Editor: Dan Meliza (dan at meliza.org)
--   Version: 1.0
+-   Version: 1.1
 -   Status: draft
 
 ## Schema
@@ -17,6 +17,8 @@ Stimtrial is a superset of [pprox](https://meliza.org/spec:2/pprox). Each elemen
 
 - an `interval` field, an array with exactly two numbers: the start and end of the trial (the period in which events were recorded), in seconds, relative to `offset`, if present. pprox leaves this field optional, but a point process needs a defined interval for quantities like the firing rate to be meaningful. The `events` SHOULD fall within the interval.
 - a `stimulus` field, a map containing a stimulus identifier (`name`) and the interval in which the stimulus was presented (`interval`, also relative to `offset`, if present).
+
+As in pprox, the collection MAY have a `version` field: the version of this specification the document follows, as `MAJOR.MINOR` (e.g. `"1.1"`), with the same rules (pprox section 3.3). A document without it follows version 1.0. Version 1.1 added the field.
 
 
 Here is a minimal example:
@@ -40,6 +42,7 @@ Here is an example with example metadata:
 ~~~ json
 {
   "$schema": "https://meliza.org/spec:2/stimtrial.json#",
+  "version": "1.1",
   "unit": "uuid:9b7d15cb-6529-4f99-889b-d2bfb5126fbd",
   "subject": "uuid:629d1161-9e52-443f-84be-14024405c2c2",
   "source_recording": "uuid:e124679f-0dc0-433a-8b25-a4d8f19d122a",
