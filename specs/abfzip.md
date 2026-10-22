@@ -49,7 +49,8 @@ The order of members, their timestamps, and their permissions are not part of
 the format. Programs that write abfzip files for an archive that identifies
 resources by hash (such as [neurobank](https://github.com/melizalab/neurobank))
 SHOULD write them in a fixed form, so that the same files always give the same
-archive; neurobank provides a writer for this.
+archive; neurobank provides a writer for this (`nbank.canonical_zip`), and a
+reader that finds members' offsets for reading in place (`nbank.zipped`).
 
 ## 3 metadata.json
 
@@ -78,6 +79,12 @@ for them, everything else as metadata). Its keys are:
 -   `animal` (OPTIONAL): the animal the recording came from, as its identifier in
     the registry's animal database (in the Meliza lab, the bird's UUID in the
     colony database, in lowercase).
+-   `software` (OPTIONAL): the acquisition program that wrote the ABF files and
+    its version, as their headers give it (e.g. `Clampex 11.2.2.17`).
+-   `processed_by` (RECOMMENDED): the program that built the archive and its
+    version, as `<namespace>/<program> <version>` (e.g.
+    `org.meliza.melizalab-tools/abf-zip 2026.10.22`). If more than one program
+    produced it, they are listed oldest first, separated by `; `.
 -   Any other keys (OPTIONAL): further metadata about the recording as a whole,
     as JSON values. Names SHOULD follow the lab's conventions for registry
     metadata, e.g. `protocol` for the name of the experimental protocol.
@@ -100,12 +107,18 @@ keeping a separate list. Its keys are:
 -   `start` (OPTIONAL): when recording of the file started, as an ISO 8601 date
     and time. A time without an offset from UTC is local time where the
     recording was made, as the ABF header records it.
+-   `sha1` (RECOMMENDED): the SHA-1 hash of the member's contents, as 40
+    lowercase hexadecimal digits. It identifies the file outside the archive (a
+    copy extracted, backed up, or still on the acquisition computer). The zip's
+    own checks (CRC-32) only cover the member while it's in the archive.
 -   Any other keys (OPTIONAL): further metadata about the member, as JSON values.
 
-A key with no known value MUST be left out rather than set to `null`. Not every
-member needs a record. Records SHOULD be in the order the files were recorded.
-Readers MUST check that each `path` names a member and appears only once, which
-the schema can't express.
+A key with no known value MUST be left out rather than set to `null`. Writers
+SHOULD give every member a record with its `sha1`, including members that
+aren't ABF files, so the archive's contents can be checked and identified from
+`metadata.json` alone; readers MUST NOT require it. Records SHOULD be in the
+order the files were recorded. Readers MUST check that each `path` names a
+member and appears only once, which the schema can't express.
 
 Here is a minimal example:
 
@@ -128,24 +141,33 @@ Here is an example with the usual metadata and a representative catalog:
     "experimenter": "anc4kj",
     "animal": "ca7cb913-0888-4861-8b3b-a954b16f42ce",
     "protocol": "intrinsic-properties",
-    "cell": 5
+    "cell": 5,
+    "software": "Clampex 10.7.0.3",
+    "processed_by": "org.meliza.melizalab-tools/abf-zip 2026.10.22"
   },
   "catalog": [
     {
       "path": "2016_05_26_0000.abf",
       "protocol": "IV_steps_500ms",
-      "start": "2016-05-26T14:02:11"
+      "start": "2016-05-26T14:02:11",
+      "sha1": "3c35fcd179a9616f57b73c657d8a9c418a36ae82"
     },
     {
       "path": "2016_05_26_0001.abf",
       "protocol": "ramp",
-      "start": "2016-05-26T14:05:40"
+      "start": "2016-05-26T14:05:40",
+      "sha1": "09ba327cbc0390cbfbb40e611f4693534f2d7312"
     },
     {
       "path": "2016_05_26_0002.abf",
       "protocol": "IV_steps_500ms",
       "start": "2016-05-26T14:31:02",
+      "sha1": "b515d052f1f4017b4429280cba549d03078bced5",
       "note": "after bath application"
+    },
+    {
+      "path": "20160526_1_5a.tif",
+      "sha1": "8ecc08fa840ee2222f83f216e3e12abda622699f"
     }
   ]
 }

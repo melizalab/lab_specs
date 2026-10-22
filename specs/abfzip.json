@@ -27,6 +27,16 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "the animal the recording came from, as its identifier in the registry's animal database"
+                },
+                "software": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "the acquisition program that wrote the ABF files and its version"
+                },
+                "processed_by": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "the program that built the archive and its version; several are separated by '; ', oldest first"
                 }
             },
             "additionalProperties": { "$ref": "#/$defs/value" }
@@ -62,6 +72,11 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "when recording of the file started, as an ISO 8601 date and time (local time if it has no offset)"
+                },
+                "sha1": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{40}$",
+                    "description": "the SHA-1 hash of the member's contents, in lowercase hexadecimal"
                 }
             },
             "required": ["path"],

@@ -101,10 +101,18 @@ METADATA = {
         "experimenter": "anc4kj",
         "animal": "ca7cb913-0888-4861-8b3b-a954b16f42ce",
         "cell": 5,
+        "software": "Clampex 10.7.0.3",
+        "processed_by": "org.meliza.melizalab-tools/abf-zip 2026.10.22",
     },
     "catalog": [
-        {"path": "2016_05_26_0000.abf", "protocol": "IV_steps_500ms", "start": "2016-05-26T14:02:11"},
-        {"path": "notes.txt"},
+        {
+            "path": "2016_05_26_0000.abf",
+            "protocol": "IV_steps_500ms",
+            "start": "2016-05-26T14:02:11",
+            "sha1": "3c35fcd179a9616f57b73c657d8a9c418a36ae82",
+        },
+        {"path": "notes.txt", "sha1": "09ba327cbc0390cbfbb40e611f4693534f2d7312"},
+        {"path": "comments.txt"},
     ],
 }
 
@@ -151,6 +159,12 @@ def test_abfzip_accepts_newer_minor_versions_and_keys():
         pytest.param(lambda d: d["catalog"][0].update(path="metadata.json"), id="record-metadata-json"),
         pytest.param(lambda d: d["catalog"][0].update(protocol=None), id="record-value-null"),
         pytest.param(lambda d: d["catalog"][0].update(start=20160526), id="record-start-not-string"),
+        pytest.param(lambda d: d["catalog"][0].update(sha1="3C35FCD179A9616F57B73C657D8A9C418A36AE82"), id="sha1-uppercase"),
+        pytest.param(lambda d: d["catalog"][0].update(sha1="3c35fcd1"), id="sha1-short"),
+        pytest.param(lambda d: d["catalog"][0].update(sha1=None), id="sha1-null"),
+        pytest.param(lambda d: d["metadata"].update(software=""), id="software-empty"),
+        pytest.param(lambda d: d["metadata"].update(processed_by=["abf-zip 1.0"]), id="processed-by-list"),
+        pytest.param(lambda d: d["metadata"].update(processed_by=""), id="processed-by-empty"),
     ],
 )
 def test_malformed_abfzip_metadata_rejected(change):
